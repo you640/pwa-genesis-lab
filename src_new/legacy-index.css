@@ -1,0 +1,303 @@
+@import url('https://fonts.googleapis.com/css2?family=Teko:wght@300;400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #0c0c0c;
+  color: #e2e8f0;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.font-teko {
+  font-family: 'Teko', sans-serif;
+}
+
+/* Ken Burns Animation for Hero */
+@keyframes ken-burns {
+  0% {
+    transform: scale(1) translateX(0);
+  }
+  50% {
+    transform: scale(1.1) translateX(-2%);
+  }
+  100% {
+    transform: scale(1) translateX(0);
+  }
+}
+
+/* Fade In Up Animation */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pause Animations */
+.animations-paused * {
+  animation-play-state: paused !important;
+}
+
+/* ============================================ */
+/* GEMINI NEON ROTATING RING EFFECT - LIME THEME */
+/* ============================================ */
+
+/* Wrapper pre tlačidlo s rotujúcim neonovým okrajom */
+.gemini-ring-wrapper {
+  position: relative;
+  display: inline-block;
+  border-radius: 0.75rem;
+  padding: 2px;
+  background: transparent;
+  transition: transform 0.3s ease;
+}
+
+.gemini-ring-wrapper:hover {
+  transform: scale(1.05);
+}
+
+/* Rotujúci neonový okraj (Ring) */
+.gemini-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Krúžiaci gradient - LIME/GREEN téma */
+.gemini-ring::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    transparent 0%,
+    #a3e635 10%,      /* lime-400 */
+    #84cc16 20%,      /* lime-500 */
+    transparent 30%,
+    transparent 60%,
+    #22c55e 80%,      /* green-500 */
+    #16a34a 90%,      /* green-600 */
+    transparent 100%
+  );
+  animation: rotate-gemini-ring 3s linear infinite;
+}
+
+/* Rýchlejšia rotácia pre hover */
+.gemini-ring-wrapper:hover .gemini-ring::before {
+  animation-duration: 1.5s;
+}
+
+/* Animácia rotácie */
+@keyframes rotate-gemini-ring {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Tlačidlo s neonovým efektom */
+.gemini-button {
+  position: relative;
+  z-index: 10;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0d1117 100%);
+  color: #ffffff;
+  font-weight: 700;
+  padding: 0.875rem 2rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(163, 230, 53, 0.2);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 
+    0 0 10px rgba(163, 230, 53, 0.3),
+    0 0 20px rgba(132, 204, 22, 0.2) inset,
+    0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.gemini-button:hover {
+  background: linear-gradient(135deg, #252525 0%, #1a222c 100%);
+  box-shadow: 
+    0 0 20px rgba(163, 230, 53, 0.5),
+    0 0 30px rgba(132, 204, 22, 0.3) inset,
+    0 6px 20px rgba(0, 0, 0, 0.6);
+}
+
+/* Jemná zrnitá textúra */
+.gemini-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0.75rem;
+  background-image: radial-gradient(
+    circle at 50% 50%, 
+    rgba(163, 230, 53, 0.05) 10%, 
+    transparent 90%
+  );
+  background-size: 3px 3px;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+/* Ping efekt pri kliknutí */
+@keyframes gemini-ping {
+  0% { box-shadow: 0 0 0 0 rgba(163, 230, 53, 0.7); }
+  70% { box-shadow: 0 0 0 15px rgba(163, 230, 53, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(163, 230, 53, 0); }
+}
+
+.gemini-ping {
+  animation: gemini-ping 0.6s cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* ============================================ */
+/* GEMINI CARD EFFECT - Pre produktové karty */
+/* ============================================ */
+
+.gemini-card-wrapper {
+  position: relative;
+  border-radius: 1rem;
+  padding: 2px;
+  background: transparent;
+  transition: transform 0.3s ease;
+}
+
+.gemini-card-wrapper:hover {
+  transform: translateY(-5px);
+}
+
+.gemini-card-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  border-radius: 1rem;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.gemini-card-wrapper:hover .gemini-card-ring {
+  opacity: 1;
+}
+
+.gemini-card-ring::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    transparent 0%,
+    #a3e635 15%,
+    transparent 35%,
+    transparent 65%,
+    #22c55e 85%,
+    transparent 100%
+  );
+  animation: rotate-gemini-ring 4s linear infinite;
+}
+
+/* ============================================ */
+/* GEMINI SIDEBAR ACTIVE STATE */
+/* ============================================ */
+
+.gemini-sidebar-active {
+  position: relative;
+  background: linear-gradient(90deg, rgba(163, 230, 53, 0.15) 0%, rgba(132, 204, 22, 0.1) 100%);
+  border-left: 3px solid #a3e635;
+  box-shadow: 
+    0 0 15px rgba(163, 230, 53, 0.2),
+    inset 0 0 20px rgba(132, 204, 22, 0.1);
+}
+
+.gemini-sidebar-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    #a3e635 50%,
+    transparent 100%
+  );
+  animation: sidebar-glow 2s ease-in-out infinite;
+}
+
+@keyframes sidebar-glow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* ============================================ */
+/* UTILITY CLASSES */
+/* ============================================ */
+
+/* Malé tlačidlo s Gemini efektom */
+.gemini-button-sm {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+}
+
+/* Veľké tlačidlo s Gemini efektom */
+.gemini-button-lg {
+  padding: 1.25rem 3rem;
+  font-size: 1.125rem;
+}
+
+/* Disabled stav */
+.gemini-button:disabled,
+.gemini-ring-wrapper.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.gemini-ring-wrapper.disabled .gemini-ring::before {
+  animation: none;
+}
+
+/* ============================================ */
+/* RESPONSIVE ADJUSTMENTS */
+/* ============================================ */
+
+@media (max-width: 768px) {
+  .gemini-button {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+  }
+  
+  .gemini-ring-wrapper:hover {
+    transform: scale(1.02);
+  }
+}
