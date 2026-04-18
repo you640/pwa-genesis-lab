@@ -490,7 +490,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, showTo
                         />
                     </div>
                     <GeminiButton
-                        onClick={handleSendEmail}
+                        onClick={() => { void handleSendEmail(); }}
                         type="submit"
                         disabled={isSending}
                         fullWidth
