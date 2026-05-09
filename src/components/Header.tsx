@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { substances } from '../services/substanceData';
 import { PageRoute, Product, User, CartItem } from '../types';
-import { categories, manufacturers, eShopService } from '../services/eShopService';
+import { eShopService } from '../services/eShopService';
 
 interface HeaderProps {
     isScrolled: boolean;
@@ -66,6 +66,13 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled, onOpenApiTester, onN
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const [animateBadge, setAnimateBadge] = useState(false);
+    const [categories, setCategories] = useState<string[]>([]);
+    const [manufacturers, setManufacturers] = useState<string[]>([]);
+
+    useEffect(() => {
+        eShopService.getCategories().then(setCategories);
+        eShopService.getManufacturers().then(setManufacturers);
+    }, []);
 
     // State and logic for search bar
     const [query, setQuery] = useState('');
