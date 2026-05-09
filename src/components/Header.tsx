@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { substances } from '../services/substanceData';
 import { PageRoute, Product, User, CartItem } from '../types';
-import { categories, manufacturers, eShopService } from '../services/eShopService';
+import { eShopService } from '../services/eShopService';
 
 interface HeaderProps {
     isScrolled: boolean;
