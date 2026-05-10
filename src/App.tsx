@@ -1,6 +1,9 @@
 
 
 import React, { useState, useEffect, useCallback, useRef, useReducer } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { pageStateToPath, pathToPageState } from './lib/routing';
+import { useSEO } from './lib/seo';
 import { Product, Message, CartItem, Order, Sender, ToastMessage, CartAction, LoadingState, Discount, PageState, PageRoute, BlogPost, AppState, AppAction, User, AuthModalType } from './types';
 import { initialBotMessage, chatbotCommands, defaultAdminAvatar, defaultUserAvatar } from './constants';
 import { eShopService } from './services/eShopService';
@@ -254,8 +257,22 @@ const GymStorePage = React.memo(({ onAddToCart, onQuickView, onNavigate, wishlis
 
 
 function App() {
-  const [state, dispatch] = useReducer(appReducer, initialState);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const initialPage = pathToPageState(location.pathname, location.search);
+  const [state, dispatch] = useReducer(appReducer, { ...initialState, page: initialPage });
   const { page, isPageLoading, listPageData, detailPageProduct, detailPagePost, cart, discount, orders, wishlist, messages, chatLoadingState, chatActionLoading, toast, selectedProduct, isApiTesterOpen, isScrolled, user, authModal, notifyModalProduct, isPaused } = state;
+
+  // Sync URL -> page state (handles back/forward and direct loads)
+  useEffect(() => {
+    const next = pathToPageState(location.pathname, location.search);
+    if (next.route !== page.route || (next.slug || null) !== (page.slug || null)) {
+      dispatch({ type: 'NAVIGATE', payload: next });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, location.search]);
+
+  useSEO({ page, product: detailPageProduct, post: detailPagePost, listTitle: listPageData.title });
 
   const toastTimerRef = useRef<number | null>(null);
 
@@ -284,9 +301,10 @@ function App() {
   }, [isPaused]);
 
   const handleNavigate = useCallback((route: PageRoute, slug: string | null = null) => {
-    dispatch({ type: 'NAVIGATE', payload: { route, slug } });
+    const path = pageStateToPath({ route, slug });
+    navigate(path);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     const fetchPageData = async () => {
