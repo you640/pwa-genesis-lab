@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useRef, useReducer } from 'rea
 import { useLocation, useNavigate } from 'react-router-dom';
 import { pageStateToPath, pathToPageState } from './lib/routing';
 import { useSEO } from './lib/seo';
+import { useAuth } from './contexts/AuthContext';
 import { Product, Message, CartItem, Order, Sender, ToastMessage, CartAction, LoadingState, Discount, PageState, PageRoute, BlogPost, AppState, AppAction, User, AuthModalType } from './types';
 import { initialBotMessage, chatbotCommands, defaultAdminAvatar, defaultUserAvatar } from './constants';
 import { eShopService } from './services/eShopService';
@@ -259,9 +260,19 @@ const GymStorePage = React.memo(({ onAddToCart, onQuickView, onNavigate, wishlis
 function App() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user: authUser, signOut: authSignOut, isAdmin } = useAuth();
   const initialPage = pathToPageState(location.pathname, location.search);
   const [state, dispatch] = useReducer(appReducer, { ...initialState, page: initialPage });
   const { page, isPageLoading, listPageData, detailPageProduct, detailPagePost, cart, discount, orders, wishlist, messages, chatLoadingState, chatActionLoading, toast, selectedProduct, isApiTesterOpen, isScrolled, user, authModal, notifyModalProduct, isPaused } = state;
+
+  // Sync auth user to reducer
+  useEffect(() => {
+    if (authUser) {
+      dispatch({ type: 'SET_USER', payload: { name: (authUser.user_metadata as any)?.display_name || authUser.email?.split('@')[0] || 'User', email: authUser.email || '' } });
+    } else {
+      dispatch({ type: 'SET_USER', payload: null });
+    }
+  }, [authUser]);
 
   // Sync URL -> page state (handles back/forward and direct loads)
   useEffect(() => {
@@ -486,24 +497,16 @@ function App() {
   }, [cart.length, showToast]);
 
   const handleCheckout = useCallback(() => {
-    if (cart.length > 0) {
-      const total = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0) * (discount ? (1 - discount.percentage / 100) : 1);
-      const newOrder: Order = {
-        id: `FORGE-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-        items: cart,
-        total: total,
-        date: new Date().toISOString(),
-        shippingAddress: user?.email || 'customer@theforge.com',
-        status: 'Processing',
-        discountApplied: discount || undefined,
-      };
-      dispatch({ type: 'ADD_ORDER', payload: newOrder });
-      showToast(`Order #${newOrder.id} placed! Thank you.`);
-      handleNavigate('home');
-    } else {
+    if (cart.length === 0) {
       showToast("Your cart is empty.");
+      return;
     }
-  }, [cart, discount, user, showToast, handleNavigate]);
+    if (!authUser) {
+      navigate('/auth?redirect=/checkout');
+      return;
+    }
+    navigate('/checkout');
+  }, [cart.length, authUser, navigate, showToast]);
 
   const executeShopFunction = useCallback(async (name: string, args: any): Promise<void> => {
     let responseText = "Sorry, I couldn't perform that action.";
@@ -892,9 +895,9 @@ function App() {
         onNavigate={handleNavigate}
         user={user}
         cart={cart}
-        onOpenAuthModal={(type) => dispatch({ type: 'SET_AUTH_MODAL', payload: type })}
-        onLogout={() => {
-          dispatch({ type: 'SET_USER', payload: null });
+        onOpenAuthModal={() => navigate('/auth')}
+        onLogout={async () => {
+          await authSignOut();
           showToast("You've been logged out.");
         }}
       />
@@ -904,20 +907,6 @@ function App() {
       <Toast message={toast.message} visible={toast.visible} />
       <ProductModal product={selectedProduct} onClose={handleCloseModal} onAddToCart={(p) => handleAddToCart(p, 1)} />
       {isApiTesterOpen && <PrestaShopApiTester onClose={() => dispatch({ type: 'CLOSE_API_TESTER' })} />}
-      <AuthModal
-        modalType={authModal}
-        onClose={() => dispatch({ type: 'SET_AUTH_MODAL', payload: null })}
-        onLogin={(user) => {
-          dispatch({ type: 'SET_USER', payload: user });
-          dispatch({ type: 'SET_AUTH_MODAL', payload: null });
-          showToast(`Welcome back, ${user.name}!`);
-        }}
-        onRegister={(user) => {
-          dispatch({ type: 'SET_USER', payload: user });
-          dispatch({ type: 'SET_AUTH_MODAL', payload: null });
-          showToast(`Welcome to The Forge, ${user.name}!`);
-        }}
-      />
       <NotifyModal
         product={notifyModalProduct}
         onClose={() => dispatch({ type: 'CLOSE_NOTIFY_MODAL' })}
