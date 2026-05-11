@@ -14,6 +14,71 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          metadata: Json | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          metadata?: Json | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          metadata?: Json | null
+        }
+        Relationships: []
+      }
+      cart_items: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          quantity: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          quantity?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          quantity?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           created_at: string
@@ -185,9 +250,23 @@ export type Database = {
           id: string
           notes: string | null
           order_number: string
+          payment_intent_id: string | null
+          payment_method: string | null
+          payment_status: string
           shipping_address: Json
+          shipping_city: string | null
+          shipping_cost: number
+          shipping_country: string | null
+          shipping_method: string | null
+          shipping_name: string | null
+          shipping_phone: string | null
+          shipping_street: string | null
+          shipping_zip: string | null
           status: Database["public"]["Enums"]["order_status"]
+          subtotal: number | null
+          tax_amount: number
           total: number
+          tracking_number: string | null
           updated_at: string
           user_id: string | null
         }
@@ -200,9 +279,23 @@ export type Database = {
           id?: string
           notes?: string | null
           order_number?: string
+          payment_intent_id?: string | null
+          payment_method?: string | null
+          payment_status?: string
           shipping_address: Json
+          shipping_city?: string | null
+          shipping_cost?: number
+          shipping_country?: string | null
+          shipping_method?: string | null
+          shipping_name?: string | null
+          shipping_phone?: string | null
+          shipping_street?: string | null
+          shipping_zip?: string | null
           status?: Database["public"]["Enums"]["order_status"]
+          subtotal?: number | null
+          tax_amount?: number
           total: number
+          tracking_number?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -215,9 +308,23 @@ export type Database = {
           id?: string
           notes?: string | null
           order_number?: string
+          payment_intent_id?: string | null
+          payment_method?: string | null
+          payment_status?: string
           shipping_address?: Json
+          shipping_city?: string | null
+          shipping_cost?: number
+          shipping_country?: string | null
+          shipping_method?: string | null
+          shipping_name?: string | null
+          shipping_phone?: string | null
+          shipping_street?: string | null
+          shipping_zip?: string | null
           status?: Database["public"]["Enums"]["order_status"]
+          subtotal?: number | null
+          tax_amount?: number
           total?: number
+          tracking_number?: string | null
           updated_at?: string
           user_id?: string | null
         }
