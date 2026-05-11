@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useRef, useReducer } from 'rea
 import { useLocation, useNavigate } from 'react-router-dom';
 import { pageStateToPath, pathToPageState } from './lib/routing';
 import { useSEO } from './lib/seo';
+import { useAuth } from './contexts/AuthContext';
 import { Product, Message, CartItem, Order, Sender, ToastMessage, CartAction, LoadingState, Discount, PageState, PageRoute, BlogPost, AppState, AppAction, User, AuthModalType } from './types';
 import { initialBotMessage, chatbotCommands, defaultAdminAvatar, defaultUserAvatar } from './constants';
 import { eShopService } from './services/eShopService';
@@ -259,9 +260,19 @@ const GymStorePage = React.memo(({ onAddToCart, onQuickView, onNavigate, wishlis
 function App() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user: authUser, signOut: authSignOut, isAdmin } = useAuth();
   const initialPage = pathToPageState(location.pathname, location.search);
   const [state, dispatch] = useReducer(appReducer, { ...initialState, page: initialPage });
   const { page, isPageLoading, listPageData, detailPageProduct, detailPagePost, cart, discount, orders, wishlist, messages, chatLoadingState, chatActionLoading, toast, selectedProduct, isApiTesterOpen, isScrolled, user, authModal, notifyModalProduct, isPaused } = state;
+
+  // Sync auth user to reducer
+  useEffect(() => {
+    if (authUser) {
+      dispatch({ type: 'SET_USER', payload: { name: (authUser.user_metadata as any)?.display_name || authUser.email?.split('@')[0] || 'User', email: authUser.email || '' } });
+    } else {
+      dispatch({ type: 'SET_USER', payload: null });
+    }
+  }, [authUser]);
 
   // Sync URL -> page state (handles back/forward and direct loads)
   useEffect(() => {
