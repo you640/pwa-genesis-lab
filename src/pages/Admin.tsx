@@ -64,7 +64,7 @@ function Orders() {
   };
   useEffect(() => { load(); }, []);
   const updateStatus = async (id: string, status: string) => {
-    await supabase.from('orders').update({ status }).eq('id', id);
+    await supabase.from('orders').update({ status: status as any }).eq('id', id);
     load();
   };
   return (
