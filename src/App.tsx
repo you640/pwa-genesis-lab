@@ -497,24 +497,16 @@ function App() {
   }, [cart.length, showToast]);
 
   const handleCheckout = useCallback(() => {
-    if (cart.length > 0) {
-      const total = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0) * (discount ? (1 - discount.percentage / 100) : 1);
-      const newOrder: Order = {
-        id: `FORGE-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-        items: cart,
-        total: total,
-        date: new Date().toISOString(),
-        shippingAddress: user?.email || 'customer@theforge.com',
-        status: 'Processing',
-        discountApplied: discount || undefined,
-      };
-      dispatch({ type: 'ADD_ORDER', payload: newOrder });
-      showToast(`Order #${newOrder.id} placed! Thank you.`);
-      handleNavigate('home');
-    } else {
+    if (cart.length === 0) {
       showToast("Your cart is empty.");
+      return;
     }
-  }, [cart, discount, user, showToast, handleNavigate]);
+    if (!authUser) {
+      navigate('/auth?redirect=/checkout');
+      return;
+    }
+    navigate('/checkout');
+  }, [cart.length, authUser, navigate, showToast]);
 
   const executeShopFunction = useCallback(async (name: string, args: any): Promise<void> => {
     let responseText = "Sorry, I couldn't perform that action.";
@@ -903,9 +895,9 @@ function App() {
         onNavigate={handleNavigate}
         user={user}
         cart={cart}
-        onOpenAuthModal={(type) => dispatch({ type: 'SET_AUTH_MODAL', payload: type })}
-        onLogout={() => {
-          dispatch({ type: 'SET_USER', payload: null });
+        onOpenAuthModal={() => navigate('/auth')}
+        onLogout={async () => {
+          await authSignOut();
           showToast("You've been logged out.");
         }}
       />
@@ -915,20 +907,6 @@ function App() {
       <Toast message={toast.message} visible={toast.visible} />
       <ProductModal product={selectedProduct} onClose={handleCloseModal} onAddToCart={(p) => handleAddToCart(p, 1)} />
       {isApiTesterOpen && <PrestaShopApiTester onClose={() => dispatch({ type: 'CLOSE_API_TESTER' })} />}
-      <AuthModal
-        modalType={authModal}
-        onClose={() => dispatch({ type: 'SET_AUTH_MODAL', payload: null })}
-        onLogin={(user) => {
-          dispatch({ type: 'SET_USER', payload: user });
-          dispatch({ type: 'SET_AUTH_MODAL', payload: null });
-          showToast(`Welcome back, ${user.name}!`);
-        }}
-        onRegister={(user) => {
-          dispatch({ type: 'SET_USER', payload: user });
-          dispatch({ type: 'SET_AUTH_MODAL', payload: null });
-          showToast(`Welcome to The Forge, ${user.name}!`);
-        }}
-      />
       <NotifyModal
         product={notifyModalProduct}
         onClose={() => dispatch({ type: 'CLOSE_NOTIFY_MODAL' })}
