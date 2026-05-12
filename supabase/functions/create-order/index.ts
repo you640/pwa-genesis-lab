@@ -102,8 +102,8 @@ Deno.serve(async (req) => {
     if (itemsErr) return json({ error: itemsErr.message }, 500);
 
     if (discountCode) {
-      await admin.rpc("noop").catch(() => {});
-      await admin.from("discount_codes").update({ uses_count: (await admin.from("discount_codes").select("uses_count").eq("code", discountCode).single()).data!.uses_count + 1 }).eq("code", discountCode);
+      const { data: cur } = await admin.from("discount_codes").select("uses_count").eq("code", discountCode).single();
+      await admin.from("discount_codes").update({ uses_count: (cur?.uses_count || 0) + 1 }).eq("code", discountCode);
     }
 
     // Clear cart
