@@ -4,7 +4,9 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App';
 import { AuthProvider } from './contexts/AuthContext';
+import CookieConsent from './components/CookieConsent';
 import './legacy-index.css';
+import './lib/i18n';
 
 const AuthPage = lazy(() => import('./pages/Auth'));
 const ResetPasswordPage = lazy(() => import('./pages/ResetPassword'));
@@ -12,6 +14,7 @@ const CheckoutPage = lazy(() => import('./pages/Checkout'));
 const PaymentSuccessPage = lazy(() => import('./pages/PaymentSuccess'));
 const PaymentCancelledPage = lazy(() => import('./pages/PaymentCancelled'));
 const AdminPage = lazy(() => import('./pages/Admin'));
+const LegalPage = lazy(() => import('./pages/LegalPage'));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 60_000, refetchOnWindowFocus: false } },
@@ -38,9 +41,15 @@ root.render(
               <Route path="/payment-success" element={<PaymentSuccessPage />} />
               <Route path="/payment-cancelled" element={<PaymentCancelledPage />} />
               <Route path="/admin/*" element={<AdminPage />} />
+              <Route path="/legal/:slug" element={<LegalPage />} />
+              <Route path="/privacy" element={<LegalPage />} />
+              <Route path="/terms" element={<LegalPage />} />
+              <Route path="/refund" element={<LegalPage />} />
+              <Route path="/shipping" element={<LegalPage />} />
               <Route path="/*" element={<App />} />
             </Routes>
           </Suspense>
+          <CookieConsent />
         </AuthProvider>
       </QueryClientProvider>
     </BrowserRouter>
