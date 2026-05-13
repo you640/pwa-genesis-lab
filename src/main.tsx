@@ -38,6 +38,7 @@ root.render(
             <Routes>
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="/cart" element={<CartPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/payment-success" element={<PaymentSuccessPage />} />
               <Route path="/payment-cancelled" element={<PaymentCancelledPage />} />
