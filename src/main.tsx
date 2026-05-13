@@ -15,6 +15,7 @@ const PaymentSuccessPage = lazy(() => import('./pages/PaymentSuccess'));
 const PaymentCancelledPage = lazy(() => import('./pages/PaymentCancelled'));
 const AdminPage = lazy(() => import('./pages/Admin'));
 const LegalPage = lazy(() => import('./pages/LegalPage'));
+const CartPage = lazy(() => import('./pages/Cart'));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 60_000, refetchOnWindowFocus: false } },
