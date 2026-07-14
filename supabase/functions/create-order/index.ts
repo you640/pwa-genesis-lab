@@ -37,17 +37,34 @@ Deno.serve(async (req) => {
 
     const admin = createClient(supabaseUrl, service);
 
-    // Resolve products
+    // Resolve products — validate all IDs before querying so untrusted input
+    // cannot be spliced into a raw PostgREST filter string (RLS is bypassed
+    // here because the admin client uses the service-role key).
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const LEGACY_RE = /^[A-Za-z0-9._-]{1,64}$/;
     const legacyIds = body.items.filter(i => i.legacy_id).map(i => i.legacy_id!);
     const productIds = body.items.filter(i => i.product_id).map(i => i.product_id!);
-    const { data: products, error: prodErr } = await admin
-      .from("products")
-      .select("id, legacy_id, name, price, image_url, stock_quantity, in_stock")
-      .or([
-        legacyIds.length ? `legacy_id.in.(${legacyIds.map(s => `"${s}"`).join(",")})` : "",
-        productIds.length ? `id.in.(${productIds.join(",")})` : "",
-      ].filter(Boolean).join(","));
-    if (prodErr) return json({ error: prodErr.message }, 500);
+    if (productIds.some(id => !UUID_RE.test(id))) return json({ error: "Invalid product_id" }, 400);
+    if (legacyIds.some(id => !LEGACY_RE.test(id))) return json({ error: "Invalid legacy_id" }, 400);
+
+    const productsMap = new Map<string, any>();
+    if (productIds.length) {
+      const { data, error } = await admin
+        .from("products")
+        .select("id, legacy_id, name, price, image_url, stock_quantity, in_stock")
+        .in("id", productIds);
+      if (error) return json({ error: error.message }, 500);
+      (data || []).forEach(p => productsMap.set(p.id, p));
+    }
+    if (legacyIds.length) {
+      const { data, error } = await admin
+        .from("products")
+        .select("id, legacy_id, name, price, image_url, stock_quantity, in_stock")
+        .in("legacy_id", legacyIds);
+      if (error) return json({ error: error.message }, 500);
+      (data || []).forEach(p => productsMap.set(p.id, p));
+    }
+    const products = Array.from(productsMap.values());
 
     let subtotal = 0;
     const orderItems: any[] = [];
